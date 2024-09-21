@@ -52,6 +52,9 @@ void loop() {
           String tiempo_ms = settings.substring(indice_delimitador + 1);
           led = led_elegido.toInt();
           tiempo = tiempo_ms.toInt();
+          if(led == tiempo){
+            tiempo = 0;
+          }
           delay(100);
           leds(led, tiempo);
         }
@@ -77,7 +80,7 @@ void menu(void){
 
 void voltaje(void){
   float volt1 = 0.0;
-  volt1 = analogReadMilliVolts(pot)/10.0;
+  volt1 = analogReadMilliVolts(pot)/1000.0;
   Serial.print("Voltaje: ");
   Serial.print(volt1);
   Serial.println(" V");
