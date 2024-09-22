@@ -1,22 +1,31 @@
+/* Nicolás Moklebust 22037
+Laboratorio 7, el programa le pide al usuario que elija entre dos modos de operación, siendo el primero un medidor de voltaje y el segundo un programa para prender leds en un tiempo determinado
+*/
+
 #include <Arduino.h>
 
-
+//Se indican los pines de los leds y del potencióemtro
 #define led_1 18
 #define led_2 19
 #define led_3 21
 #define pot 34
 
+//Se definen las variables eleccion y settings donde se guardan los inputs del usuario
 String eleccion;
 String settings;
 
+//se definen las variables num, led y tiempo que indican la opción del funcionamiento que el usuario indica
+//Las variables activar y enviar permiten que un ciclo ocurra hasta que se ejecute la tarea deseada
 int num, led, tiempo;
 int activar = 0;
 int enviar = 0;
 
+//se colocan los prototipos de función que displiegan el menú de opciones, la funcion de voltaje y prenden los leds. 
 void menu(void);
 void voltaje(void);
 void leds(int led, int tiempo);
 
+//se definen los modos de funcionamiento de los diferentes pines, se inicia el monitor serial y se despliega el menú+mensaje inicial
 void setup() {
   Serial.begin(115200);
   Serial.println("Bienvenido");
@@ -26,14 +35,17 @@ void setup() {
   menu();
 }
 
+
 void loop() {
+//si el usuario escribe algo lo lee hasta que finaliza el texto y lo convierte en un número, activar vale uno permitiendo que el ciclo de funcionamiento funciones
   if(Serial.available() > 0){
     eleccion = Serial.readStringUntil('\n');
     num = eleccion.toInt();
     Serial.println(num);
     activar = 1;
   }
-
+//una vez este ciclo es activado se revisa si el valor de num es 1 o 2, si no es ninguno de estos despliega otra vez el menú. Si es 1 activa la funcion voltaje y si es 2
+//activa la funcion de leds en la que le pide al usuario ingresar los parametros para encender las leds y activa la función "leds" con los parametros de led seleccionado y tiempo
   if((num == 1 | num == 2) & activar == 1){
     if(num == 1){
       voltaje();
@@ -60,10 +72,12 @@ void loop() {
         }
       }
     }
-
+//una vez terminado se despliega el menú y activar regresa a 0 para que vuelva a aceptar comandos del usuario
     menu();
     activar = 0;
   }
+
+//si activar es uno pero num no cumple con las opciones indicadas envia "Opción no válida" y vuelve a desplegar el menú
   else if (activar == 1){
     Serial.println("OPCIÓN NO VÁLIDA");
     menu();
@@ -71,6 +85,7 @@ void loop() {
   }
 }
 
+//la función solo imprime en monitor serial las opciones que el usuario puede elegir
 void menu(void){
   Serial.println("Escoja la opción que desea usar: ");
   Serial.println("1. Lectura ADC");
@@ -78,6 +93,7 @@ void menu(void){
   Serial.println("Ingrese el número de la opción: ");
 }
 
+//la funcion lee el voltaje del potenciómetro y lo pasa de mili voltios a voltios, además imprime este valor para que el usuario lo vea
 void voltaje(void){
   float volt1 = 0.0;
   volt1 = analogReadMilliVolts(pot)/1000.0;
@@ -86,6 +102,8 @@ void voltaje(void){
   Serial.println(" V");
 }
 
+//esta función toma los valores de tiempo y led colocados por el usuario y enciende el led (1-3) dependiendo de la elección siguiendo el tiempo seleccionado por el usuario
+//si alguno de los parametros no está en el rango aceptado indica que se vuelva a colocar el valor y se queda esperando a que se coloque la opción correcta. 
 void leds(int led, int tiempo){
   if(led == 0 | tiempo == 0 | (led >= 4) | (led < 0)){
     Serial.println("Opción inválida, vuelva a colocar el valor");
